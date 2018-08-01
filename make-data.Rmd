@@ -1,0 +1,58 @@
+---
+title: "Compile NFL data"
+author: "Ryan Menezes"
+date: "July 30, 2018"
+output:
+  html_document:
+    df_print: kable
+  pdf_document: default
+---
+
+```{r}
+setwd('/home/ryan/sports/nfl-life-death/')
+```
+
+```{r, warning=FALSE, message=FALSE}
+library('tidyverse')
+```
+
+```{r}
+players <- read_csv('data/nfl-players.csv')
+head(players)
+```
+
+
+```{r}
+dates <- read_csv('data/nfl-dob-dod.csv', col_types = 'ccc')
+dates$dod <- str_replace(dates$dod, '-00$','-01')
+dates <- type_convert(dates)
+head(dates)
+```
+
+```{r}
+careers <- read_csv('data/nfl-careers.csv')
+head(careers)
+```
+
+```{r}
+gmsns <- careers %>% 
+  group_by(srid) %>% 
+  summarise(
+    seasons = sum(seasons),
+    games = sum(games)
+  )
+head(gmsns)
+```
+
+```{r}
+life_careers <- players %>%
+  inner_join(gmsns) %>% 
+  inner_join(dates)
+```
+```{r}
+head(life_careers)
+```
+```{r}
+write_csv(life_careers, path='data/life-careers.csv')
+```
+
